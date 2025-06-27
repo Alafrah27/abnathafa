@@ -7,7 +7,8 @@ export const createPost = async (req, res) => {
     const files = req.files || []; // <-- change
     const images = [];
     let post = null;
-    const pathUrl = `${req.protocol}://${req.get("host")}/public/uploads/`;
+   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+    const pathUrl = `${baseUrl}/public/uploads/`;
 
     if (files?.length > 0) {
       for (const file of files) {

@@ -143,7 +143,9 @@ export const updateUser = async (req, res) => {
     }
 
     if (file) {
-      const pathUrl = `${req.protocol}://${req.get("host")}/public/uploads/`;
+      const baseUrl =
+        process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
+      const pathUrl = `${baseUrl}/public/uploads/`;
       updateFields.avatar = `${pathUrl}${file.filename}`;
     }
 
