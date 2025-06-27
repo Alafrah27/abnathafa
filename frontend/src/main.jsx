@@ -6,7 +6,8 @@ import './index.css'
 import LoadingPage from './component/LazyPage.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ErrorBoundary } from "react-error-boundary";
-import Errors from './component/Errors.jsx'
+import { HelmetProvider } from "react-helmet-async";
+
 const LazyApp = lazy(() => import('./App.jsx'))
 
 const queryClient = new QueryClient({
@@ -19,16 +20,19 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
-    <ErrorBoundary fallback={<Errors />}>
+    <HelmetProvider>
 
       <QueryClientProvider client={queryClient}>
 
         <BrowserRouter>
           <Suspense fallback={<LoadingPage />}>
-            <LazyApp />
+            <ErrorBoundary fallback={<div>something went wrong</div>}>
+
+              <LazyApp />
+            </ErrorBoundary>
           </Suspense>
         </BrowserRouter>
       </QueryClientProvider>
-    </ErrorBoundary>
+    </HelmetProvider>
   </>,
 )

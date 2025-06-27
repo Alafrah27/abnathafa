@@ -1,7 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Footer from "./component/Footer";
+import { Route, Routes } from "react-router-dom";
 import GoToTop from "./component/GoToTop";
-import Navbar from "./component/Navbar";
 import Hompage from "./pages/Hompage";
 import PostsPage from "./pages/PostsPage";
 import WritePost from "./pages/WritePost";
@@ -9,8 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import SiginUP from "./pages/SiginUP";
 import PrivacyPolicy from "./pages/PolicyAgree";
 import { ToastContainer } from "react-toastify";
-import { UserInfo } from "./services/useAuth";
-import { GetAllPosts } from "./services/usePosta";
+
 import PricingComponent from "./pages/PricingPage";
 import ReviewInputComponent from "./pages/AddRview";
 import SuccessPayment from "./pages/SuccessPayment";
