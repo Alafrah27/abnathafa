@@ -8,12 +8,14 @@ import Navbar from "../component/Navbar";
 import PaymentLogo from "../component/PaymentLogo";
 import ReviewUsers from "../component/ReviewUsers";
 import Services from "../component/Services";
+import SEO from "../component/SEO";
 
 function Hompage() {
   return (
     <>
       <Navbar />
       <div className="flex flex-col gap-2 items-center min-h-screen  w-full">
+        <SEO  title="ابناء طفع" description="ابناء طفع"/>
         <Hero />
         <MembersSection />
         <Contribiut />

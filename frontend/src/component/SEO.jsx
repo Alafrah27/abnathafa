@@ -5,7 +5,7 @@ function SEO({ title, description }) {
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
-      <meta name="keywords" content="Musdar.dev" />
+      <meta name="keywords" content="ابناء طفع" />
     </Helmet>
   );
 }
