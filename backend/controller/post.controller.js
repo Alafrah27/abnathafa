@@ -1,32 +1,45 @@
+import cloudinary from "../lib/cloudinary.js";
 import SocialMediaPost from "../model/post.model.js";
 import User from "../model/User.model.js";
+import fs from "fs";
+
+import dotenv from "dotenv";
+dotenv.config();
 
 export const createPost = async (req, res) => {
   try {
     const { title } = req.body;
-    const files = req.files || []; // <-- change
+    const files = req.files || [];
     const images = [];
-    let post = null;
-   const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
-    const pathUrl = `${baseUrl}/public/uploads/`;
 
-    if (files?.length > 0) {
-      for (const file of files) {
-        images.push(`${pathUrl}${file.filename}`);
-      }
-      post = new SocialMediaPost({ title, images, userId: req.user._id });
-    } else {
-      post = new SocialMediaPost({ title, userId: req.user._id });
+    // Upload all images to Cloudinary
+    const uploadPromises = files.map((file) =>
+      cloudinary.uploader.upload(file.path, { folder: "multi_uploads" })
+    );
+
+    const uploadedImages = await Promise.all(uploadPromises);
+
+    for (const image of uploadedImages) {
+      images.push(image.secure_url);
     }
+
+    // Delete local files after uploading
+    files.forEach((file) => fs.unlinkSync(file.path));
+
+    // Create the post
+    const post = new SocialMediaPost({
+      title,
+      userId: req.user._id,
+      ...(images.length > 0 && { images }),
+    });
+
     await post.save();
-    return res
-      .status(201)
-      .json({ post, message: "لقد تم انشاء المنشور بنجاح" });
+    res.status(201).json({ message: "لقد تم اضافة المنشور بنجاح", post });
   } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ message: "خطأ في السيرفر الرجاء المحاولة في وقت لاحق" });
+    console.error(error);
+    res.status(500).json({
+      message: "خطأ في السيرفر الرجاء المحاولة في وقت لاحق",
+    });
   }
 };
 
@@ -220,18 +233,29 @@ export const deleteUserPost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user._id;
 
-    const post = await SocialMediaPost.findOneAndDelete({
-      _id: postId,
-      userId: userId,
-    });
+    // First, find the post and check ownership
+    const post = await SocialMediaPost.findOne({ _id: postId, userId });
 
     if (!post) {
-      return res.status(404).json({ message: "المنشور غير موجود" });
-    } else {
-      return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
+      return res
+        .status(404)
+        .json({ message: "المنشور غير موجود أو ليس لديك صلاحية لحذفه" });
     }
+
+    // Delete images from Cloudinary
+    if (post.images && post.images.length > 0) {
+      for (const image of post.images) {
+        const publicId = image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`multi_uploads/${publicId}`);
+      }
+    }
+
+    // Delete the post from MongoDB
+    await SocialMediaPost.findByIdAndDelete(postId);
+
+    return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res
       .status(500)
       .json({ message: "خطأ في السيرفر الرجاء المحاولة في وقت لاحق" });

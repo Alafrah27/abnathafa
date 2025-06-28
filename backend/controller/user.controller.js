@@ -2,6 +2,7 @@ import User from "../model/User.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import cloudinary from "../lib/cloudinary.js";
 dotenv.config();
 
 export const register = async (req, res) => {
@@ -143,10 +144,10 @@ export const updateUser = async (req, res) => {
     }
 
     if (file) {
-      const baseUrl =
-        process.env.BASE_URL || `${req.protocol}://${req.get("host")}`;
-      const pathUrl = `${baseUrl}/public/uploads/`;
-      updateFields.avatar = `${pathUrl}${file.filename}`;
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "multi_uploads",
+      });
+      updateFields.avatar = result.secure_url;
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, updateFields, {

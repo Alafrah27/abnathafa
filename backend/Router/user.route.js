@@ -10,21 +10,7 @@ import {
 } from "../controller/user.controller.js";
 import { protectAuth } from "../MiddleWare/ProtectAuth.js";
 const router = express.Router();
-import multer from "multer";
-const storege = multer.diskStorage({
-  destination: function (req, file, cb) {
-    console.log("Saving file to: public/uploads", file.originalname);
-    cb(null, "public/uploads/");
-  },
-  filename: function (req, file, cb) {
-    const originalName = file.originalname.trim().split(" ").join("-");
-    const filename = `${Date.now()}-${originalName}`;
-    console.log("Generated filename:", filename);
-    cb(null, filename);
-  },
-});
-
-const upload = multer({ storage: storege });
+import upload from "../lib/multer.js";
 
 router.post("/register", register);
 router.post("/login", login);
