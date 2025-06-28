@@ -17,7 +17,7 @@ app.use(express.static("public/uploads"));
 
 app.use("/public/uploads", express.static("public/uploads"));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = ["http://localhost:5173", "https://frolicking-beignet-912530.netlify.app"];
 app.use(
   cors({
     origin: allowedOrigins,
